@@ -1,8 +1,61 @@
-cmake_minimum_required(VERSION 3.15...3.26)
-project(${SKBUILD_PROJECT_NAME} LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.21)
 
-set(PYBIND11_FINDPYTHON ON)
-find_package(pybind11 CONFIG REQUIRED)
+set(VTK_VERSION
+    "9.2.5"
+    CACHE STRING "VTK SDK version to package")
+project(
+  vtk-sdk
+  VERSION ${VTK_VERSION}
+  DESCRIPTION "VTK SDK python distributions"
+  HOMEPAGE_URL "https://github.com/Kitware/vtk-sdk-python-distributions"
+  LANGUAGES NONE)
 
-pybind11_add_module(_core MODULE src/main.cpp)
-install(TARGETS _core DESTINATION ${SKBUILD_PROJECT_NAME})
+find_package(
+  Python
+  COMPONENTS Interpreter Development.Module
+  REQUIRED)
+
+include(cmake/vtk-sdk-urls.cmake)
+include(FetchContent)
+
+set(download_dir ${PROJECT_BINARY_DIR})
+set(extract_dir ${PROJECT_BINARY_DIR}/vtk-wheel-sdk)
+# FetchContent will download and extract our archive!
+FetchContent_Populate(
+  vtkwheelsdk
+  URL ${VTK_SDK_BINARY_URL} DOWNLOAD_DIR ${download_dir}
+  SOURCE_DIR ${extract_dir})
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/vtk-config.cmake.in
+               ${CMAKE_CURRENT_BINARY_DIR}/vtk_sdk/cmake/vtk-config.cmake @ONLY)
+
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/vtk-config-version.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vtk_sdk/cmake/vtk-config-version.cmake @ONLY)
+
+# "/" after ${extract_dir} is required so the folder content is copied to dest,
+# instead of the folder itself!
+install(
+  DIRECTORY ${extract_dir}/
+  DESTINATION vtk_sdk
+  PATTERN "bin/*" EXCLUDE)
+
+install(
+  DIRECTORY ${extract_dir}/bin/
+  DESTINATION vtk_sdk/bin
+  PATTERN
+    "*"
+    PERMISSIONS
+      OWNER_READ
+      OWNER_WRITE
+      OWNER_EXECUTE
+      GROUP_READ
+      GROUP_EXECUTE
+      WORLD_READ
+      WORLD_EXECUTE)
+
+install(
+  FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/vtk_sdk/cmake/__init__.py
+        ${CMAKE_CURRENT_BINARY_DIR}/vtk_sdk/cmake/vtk-config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/vtk_sdk/cmake/vtk-config-version.cmake
+  DESTINATION vtk_sdk/cmake)
