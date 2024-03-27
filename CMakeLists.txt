@@ -33,8 +33,8 @@ FetchContent_Populate(
 
 set(VTK_SDK_INSTALL_DIR "content")
 
-# "/" after ${extract_dir} is required so the folder content is copied to dest,
-# instead of the folder itself!
+# Append "/" after ${extract_dir} to ensure folder content is copied to the
+# destination, instead of the folder itself.
 install(
   DIRECTORY ${extract_dir}/
   DESTINATION vtk_sdk/${VTK_SDK_INSTALL_DIR}
