@@ -25,7 +25,9 @@ set(extract_dir ${PROJECT_BINARY_DIR}/vtk-wheel-sdk)
 include(FetchContent)
 FetchContent_Populate(
   vtkwheelsdk
-  URL ${VTK_SDK_BINARY_URL} DOWNLOAD_DIR ${download_dir}
+  URL ${VTK_SDK_BINARY_URL}
+  URL_HASH SHA256=${VTK_SDK_EXPECTED_SHA256}
+  DOWNLOAD_DIR ${download_dir}
   SOURCE_DIR ${extract_dir})
 
 # ----------------------------------------------------------------------------
