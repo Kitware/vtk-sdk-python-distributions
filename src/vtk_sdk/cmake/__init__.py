@@ -1,1 +1,3 @@
-# This module is here because the path of the actual vtk-config.cmake file is not a valid module name
+"""This module serves as `cmake-module` scikit-build-core entrypoint to
+lookup the location of the `vtk-config.cmake` and `vtk-config-version.cmake` files.
+"""
