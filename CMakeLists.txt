@@ -15,23 +15,22 @@ find_package(
   COMPONENTS Interpreter Development.Module
   REQUIRED)
 
+# ----------------------------------------------------------------------------
+# Download and extract vtk-wheel-sdk archive
+
 include(cmake/vtk-sdk-urls.cmake)
-include(FetchContent)
 
 set(download_dir ${PROJECT_BINARY_DIR})
 set(extract_dir ${PROJECT_BINARY_DIR}/vtk-wheel-sdk)
-# FetchContent will download and extract our archive!
+
+include(FetchContent)
 FetchContent_Populate(
   vtkwheelsdk
   URL ${VTK_SDK_BINARY_URL} DOWNLOAD_DIR ${download_dir}
   SOURCE_DIR ${extract_dir})
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/vtk-config.cmake.in
-               ${CMAKE_CURRENT_BINARY_DIR}/vtk_sdk/cmake/vtk-config.cmake @ONLY)
-
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/vtk-config-version.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/vtk_sdk/cmake/vtk-config-version.cmake @ONLY)
+# ----------------------------------------------------------------------------
+# Install content of the vtk-wheel-sdk archive
 
 # "/" after ${extract_dir} is required so the folder content is copied to dest,
 # instead of the folder itself!
@@ -53,6 +52,16 @@ install(
       GROUP_EXECUTE
       WORLD_READ
       WORLD_EXECUTE)
+
+# ----------------------------------------------------------------------------
+# Configure and install "cmake.module" entry point files
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/vtk-config.cmake.in
+               ${CMAKE_CURRENT_BINARY_DIR}/vtk_sdk/cmake/vtk-config.cmake @ONLY)
+
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/vtk-config-version.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/vtk_sdk/cmake/vtk-config-version.cmake @ONLY)
 
 install(
   FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/vtk_sdk/cmake/__init__.py
