@@ -57,7 +57,7 @@ install(
       WORLD_EXECUTE)
 
 # ----------------------------------------------------------------------------
-# Configure and install "cmake.module" entry point files
+# Configure and install "cmake.prefix" entry point files
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/vtk-config.cmake.in
                ${CMAKE_CURRENT_BINARY_DIR}/vtk_sdk/cmake/vtk-config.cmake @ONLY)
