@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
-set(VTK_VERSION
-    "9.2.5"
-    CACHE STRING "VTK SDK version to package")
+set(VTK_VERSION "9.2.5")
+
 project(
   vtk-sdk
   VERSION ${VTK_VERSION}
