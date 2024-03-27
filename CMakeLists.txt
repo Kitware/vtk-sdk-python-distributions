@@ -32,16 +32,18 @@ FetchContent_Populate(
 # ----------------------------------------------------------------------------
 # Install content of the vtk-wheel-sdk archive
 
+set(VTK_SDK_INSTALL_DIR "content")
+
 # "/" after ${extract_dir} is required so the folder content is copied to dest,
 # instead of the folder itself!
 install(
   DIRECTORY ${extract_dir}/
-  DESTINATION vtk_sdk
+  DESTINATION vtk_sdk/${VTK_SDK_INSTALL_DIR}
   PATTERN "bin/*" EXCLUDE)
 
 install(
   DIRECTORY ${extract_dir}/bin/
-  DESTINATION vtk_sdk/bin
+  DESTINATION vtk_sdk/${VTK_SDK_INSTALL_DIR}/bin
   PATTERN
     "*"
     PERMISSIONS
