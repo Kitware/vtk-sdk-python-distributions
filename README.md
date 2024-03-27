@@ -25,7 +25,7 @@ distributed-memory parallel processing for scalability and better performance.
 This project is intended to distribute the content of the existing VTK wheel
 SDKs as first-class `vtk-sdk` wheels.
 
-Each `vtk-sdk` Python wheel is equipped with a scikit-build-core `cmake-module`
+Each `vtk-sdk` Python wheel is equipped with a scikit-build-core `cmake.prefix`
 [entrypoint][scikit-build-core-entrypoint], housing the official VTK SDK sourced
 from the corresponding [archive][wheel-sdks-link].
 
