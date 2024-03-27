@@ -84,6 +84,10 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         arch: ["auto"]
 
+        include:
+          - os: macos-14
+            arch: "arm64"
+
     steps:
       - uses: actions/checkout@v4
         with:
