@@ -3,10 +3,11 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
-import virtualenv as _virtualenv
-import pytest
 from pathlib import Path
 from typing import Literal, overload
+
+import pytest
+import virtualenv as _virtualenv
 
 DIR = Path(__file__).parent.resolve()
 BASE = DIR / "packages" / "find_package"
