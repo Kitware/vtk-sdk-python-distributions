@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Literal, overload
 
 import pytest
-import virtualenv as _virtualenv
+import virtualenv as _virtualenv  # type: ignore[import-untyped]
 
 DIR = Path(__file__).parent.resolve()
 BASE = DIR / "packages" / "find_package"
@@ -92,7 +92,13 @@ def virtualenv(tmp_path: Path) -> VEnv:
     return VEnv(path)
 
 
-def test_find_package(virtualenv: VEnv):
+ROOT = DIR.parent
+
+
+def test_find_package(virtualenv: VEnv, tmp_path: Path):
     virtualenv.run(
-        "python", "-m", "pip", "wheel", "--find-links", str(DIR.parent), str(BASE)
+        "python", "-m", "pip", "wheel", str(ROOT), "--wheel-dir", str(tmp_path)
+    )
+    virtualenv.run(
+        "python", "-m", "pip", "install", "--find-links", str(tmp_path), str(BASE)
     )
