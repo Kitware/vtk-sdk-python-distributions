@@ -53,6 +53,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
 
+      - name: Install OpenGL libraries
+        if: ${{ matrix.runs-on == 'ubuntu-latest' }}
+        run: sudo apt-get install --fix-missing libgl1-mesa-dev
+
       - name: Install package
         run: python -m pip install .[test]
 
