@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 3.21)
 
-set(VTK_VERSION "9.2.5")
+set(VTK_VERSION "9.4.1") # major.minor.patch
+if(NOT VTK_VERSION VERSION_EQUAL SKBUILD_PROJECT_VERSION)
+  message(
+    WARNING
+      "Hardcoded VTK version \"${VTK_VERSION}\" disagrees from git tag version \"${SKBUILD_PROJECT_VERSION}\"."
+      "This check is performed to ensure that the version is the intended one, especially when a specific tag is checked out."
+      "Please ensure that git tags are up to date and that VTK_VERSION has the expected value."
+  )
+endif()
 
 project(
   vtk-sdk
@@ -19,15 +27,13 @@ find_package(
 
 include(cmake/vtk-sdk-urls.cmake)
 
-set(download_dir ${PROJECT_BINARY_DIR})
-set(extract_dir ${PROJECT_BINARY_DIR}/vtk-wheel-sdk)
+set(download_dir ${CMAKE_CURRENT_BINARY_DIR})
+set(extract_dir ${CMAKE_CURRENT_BINARY_DIR}/vtk-wheel-sdk)
 
 include(FetchContent)
 FetchContent_Populate(
   vtkwheelsdk
-  URL ${VTK_SDK_BINARY_URL}
-  URL_HASH SHA256=${VTK_SDK_EXPECTED_SHA256}
-  DOWNLOAD_DIR ${download_dir}
+  URL ${VTK_SDK_BINARY_URL} DOWNLOAD_DIR ${download_dir}
   SOURCE_DIR ${extract_dir})
 
 # ----------------------------------------------------------------------------

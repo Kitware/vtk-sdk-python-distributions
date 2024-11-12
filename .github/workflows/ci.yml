@@ -55,7 +55,7 @@ jobs:
 
       - name: Install OpenGL libraries
         if: ${{ matrix.runs-on == 'ubuntu-latest' }}
-        run: sudo apt-get install --fix-missing libgl1-mesa-dev
+        run: sudo apt-get install --fix-missing libgl-dev
 
       - name: Install package
         run: python -m pip install .[test]
