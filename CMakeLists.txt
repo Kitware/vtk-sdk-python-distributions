@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21...4.0)
 
-set(VTK_VERSION "9.2.5")
+set(VTK_VERSION "9.5.0") # major.minor.patch
 
 project(
   vtk-sdk
