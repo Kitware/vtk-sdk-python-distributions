@@ -40,22 +40,30 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.12"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
         runs-on: [ubuntu-latest, macos-latest, windows-latest]
-
-        include:
-          - python-version: pypy-3.10
-            runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Fetch tags from fork if PR is from a fork
+        if:
+          ${{ github.event.pull_request.head.repo.full_name != github.repository
+          }}
+        run: |
+          git remote add fork https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
+          git fetch fork --tags
+
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
+
+      - name: Install OpenGL libraries
+        if: ${{ matrix.runs-on == 'ubuntu-latest' }}
+        run: sudo apt-get install --fix-missing libgl-dev
 
       - name: Install package
         run: python -m pip install .[test]
@@ -69,3 +77,37 @@ jobs:
         uses: codecov/codecov-action@v4.5.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  checks-cibw:
+    name: >
+      Check Python ${{ matrix.python-version }} on ${{ matrix.runs-on }} (${{
+      matrix.arch }})
+    runs-on: ${{ matrix.runs-on }}
+    needs: [pre-commit]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runs-on: macos-14
+            python-version: cp310
+            arch: "arm64"
+          - runs-on: macos-14
+            python-version: cp311
+            arch: "arm64"
+          - runs-on: macos-14
+            python-version: cp312
+            arch: "arm64"
+          - runs-on: macos-14
+            python-version: cp313
+            arch: "arm64"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pypa/cibuildwheel@v3.0.0
+        env:
+          CIBW_BUILD: "${{ matrix.python-version }}-*"
+          CIBW_ARCHS: "${{ matrix.arch }}"
+          CIBW_REPAIR_WHEEL_COMMAND: ""
