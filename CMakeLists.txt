@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-set(VTK_VERSION "9.4.1") # major.minor.patch
+set(VTK_VERSION "9.5.0") # major.minor.patch
 if(NOT VTK_VERSION VERSION_EQUAL SKBUILD_PROJECT_VERSION)
   message(
     WARNING
