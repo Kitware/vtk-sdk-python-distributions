@@ -6,8 +6,11 @@
 set(python_tag "cp${Python_VERSION_MAJOR}${Python_VERSION_MINOR}")
 set(abi_tag "${python_tag}")
 # Platform tag
-if(LINUX AND Python_SOABI MATCHES "x86_64")
-  set(plaform_tag "manylinux_2_17_x86_64.manylinux2014_x86_64")
+if(LINUX)
+  set(plaform_tag "manylinux2014_x86_64.manylinux_2_17_x86_64")
+  if(Python_SOABI MATCHES "aarch64")
+    set(plaform_tag "manylinux_2_28_aarch64")
+  endif()
 elseif(APPLE)
   set(plaform_tag "macosx_10_10_x86_64")
   if(Python_SOABI MATCHES "arm64")
