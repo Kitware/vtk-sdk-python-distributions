@@ -1,6 +1,21 @@
 cmake_minimum_required(VERSION 3.21...4.0)
 
+# Version diagnostics:
+#
+# * setuptools_scm (overridden) provides a clean nearest tag as project version
+#   via: git describe --tags --abbrev=0 --match "*[0-9]*"
+# * Compare VTK_VERSION to that clean tag (normalized) and warn on mismatch.
 set(VTK_VERSION "9.5.0") # major.minor.patch
+message(STATUS "SKBUILD_PROJECT_VERSION: ${SKBUILD_PROJECT_VERSION}")
+message(STATUS "            VTK_VERSION: ${VTK_VERSION}")
+if(NOT VTK_VERSION VERSION_EQUAL SKBUILD_PROJECT_VERSION)
+  message(
+    WARNING
+      "Hardcoded VTK version \"${VTK_VERSION}\" disagrees from git tag version \"${SKBUILD_PROJECT_VERSION}\"."
+      "This check is performed to ensure that the version is the intended one, especially when a specific tag is checked out."
+      "Please ensure that git tags are up to date and that VTK_VERSION has the expected value."
+  )
+endif()
 
 project(
   vtk-sdk
