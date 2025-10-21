@@ -4,6 +4,7 @@
 
 message(STATUS "SKBUILD_SOABI: ${SKBUILD_SOABI}")
 message(STATUS "Python_SOABI: ${Python_SOABI}")
+message(STATUS "CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
 
 message(STATUS "Setting VTK_SDK_BINARY_URL")
 
@@ -21,8 +22,9 @@ if(LINUX)
     set(plaform_tag "manylinux_2_28_aarch64")
   endif()
 elseif(APPLE)
-  set(plaform_tag "macosx_10_10_x86_64")
-  if(Python_SOABI MATCHES "arm64")
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+    set(plaform_tag "macosx_10_10_x86_64")
+  elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
     set(plaform_tag "macosx_11_0_arm64")
   endif()
 elseif(WIN32)
