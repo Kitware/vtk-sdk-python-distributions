@@ -42,6 +42,9 @@ jobs:
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
         runs-on: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: macos-14
+            arch: "arm64"
 
     steps:
       - uses: actions/checkout@v5
@@ -80,25 +83,17 @@ jobs:
 
   checks-cibw:
     name: >
-      Check Python ${{ matrix.python-version }} on ${{ matrix.runs-on }} (${{
-      matrix.arch }})
+      Check Python Wheel on ${{ matrix.runs-on }} (${{matrix.arch }})
     runs-on: ${{ matrix.runs-on }}
     needs: [pre-commit]
     strategy:
       fail-fast: false
       matrix:
+        runs-on: [ubuntu-latest, windows-latest, macos-15-intel]
+        arch: ["auto"]
+
         include:
           - runs-on: macos-14
-            python-version: cp310
-            arch: "arm64"
-          - runs-on: macos-14
-            python-version: cp311
-            arch: "arm64"
-          - runs-on: macos-14
-            python-version: cp312
-            arch: "arm64"
-          - runs-on: macos-14
-            python-version: cp313
             arch: "arm64"
 
     steps:
@@ -108,6 +103,6 @@ jobs:
 
       - uses: pypa/cibuildwheel@v3.2
         env:
-          CIBW_BUILD: "${{ matrix.python-version }}-*"
+          CIBW_BUILD: "cp310-* cp311-* cp312-* cp313-*"
           CIBW_ARCHS: "${{ matrix.arch }}"
           CIBW_REPAIR_WHEEL_COMMAND: ""
