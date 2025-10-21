@@ -94,7 +94,7 @@ class VEnv:
         return self.run(str(self.executable), "-m", *args)
 
     def install(self, *args: str, isolated: bool = True) -> None:
-        isolated_flags = "" if isolated else ["--no-build-isolation"]
+        isolated_flags = [] if isolated else ["--no-build-isolation"]
         self.module("pip", "install", *isolated_flags, *args)
 
 
