@@ -2,6 +2,9 @@
 # Set URLs for downloading the VTK SDK stored as a tar.xz archive on Kitware
 # hosted server
 
+message(STATUS "SKBUILD_SOABI: ${SKBUILD_SOABI}")
+message(STATUS "Python_SOABI: ${Python_SOABI}")
+
 message(STATUS "Setting VTK_SDK_BINARY_URL")
 
 # Python and ABI tags
