@@ -66,6 +66,7 @@ sdist.include = ["src/vtk_sdk/_version.py"]
 wheel.packages = ["src/vtk_sdk"]
 
 [tool.setuptools_scm]
+git_describe_command = [ "git", "describe", "--tags" ] # we are only interested by last tag name
 write_to = "src/vtk_sdk/_version.py"
 
 [tool.cibuildwheel]
