@@ -17,28 +17,28 @@ message(STATUS "  abi_tag: ${abi_tag}")
 # Platform tag
 if(LINUX)
   if(Python_SOABI MATCHES "x86_64")
-    set(plaform_tag "manylinux2014_x86_64.manylinux_2_17_x86_64")
+    set(platform_tag "manylinux2014_x86_64.manylinux_2_17_x86_64")
   elseif(Python_SOABI MATCHES "aarch64")
-    set(plaform_tag "manylinux_2_28_aarch64")
+    set(platform_tag "manylinux_2_28_aarch64")
   endif()
 elseif(APPLE)
   if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
-    set(plaform_tag "macosx_10_10_x86_64")
+    set(platform_tag "macosx_10_10_x86_64")
   elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
-    set(plaform_tag "macosx_11_0_arm64")
+    set(platform_tag "macosx_11_0_arm64")
   endif()
 elseif(WIN32)
-  set(plaform_tag "win_amd64")
+  set(platform_tag "win_amd64")
 endif()
-if(NOT DEFINED plaform_tag)
+if(NOT DEFINED platform_tag)
   message(
     FATAL_ERROR
-      "Failed to set plaform_tag based of Python_SOABI [${Python_SOABI}]")
+      "Failed to set platform_tag based of Python_SOABI [${Python_SOABI}]")
 endif()
-message(STATUS "  plaform_tag: ${plaform_tag}")
+message(STATUS "  platform_tag: ${platform_tag}")
 
 set(archive_name
-    "vtk-wheel-sdk-${VTK_VERSION}-${python_tag}-${abi_tag}-${plaform_tag}.tar.xz"
+    "vtk-wheel-sdk-${VTK_VERSION}-${python_tag}-${abi_tag}-${platform_tag}.tar.xz"
 )
 set(VTK_SDK_BINARY_URL "https://vtk.org/files/wheel-sdks/${archive_name}")
 message(STATUS "Setting VTK_SDK_BINARY_URL: ${VTK_SDK_BINARY_URL}")
@@ -112,13 +112,13 @@ set(sha256_9.5.0-cp313-cp313-manylinux_2_28_aarch64
 set(sha256_9.5.0-cp313-cp313-win_amd64
     "0adaf743d9d1882afe512ad3d8182ae43ec37ffc38dd42a6752ab1ad8073b288")
 
-if(NOT DEFINED sha256_${VTK_VERSION}-${python_tag}-${abi_tag}-${plaform_tag})
+if(NOT DEFINED sha256_${VTK_VERSION}-${python_tag}-${abi_tag}-${platform_tag})
   message(
     FATAL_ERROR
-      "Variable sha256_${VTK_VERSION}-${python_tag}-${abi_tag}-${plaform_tag} is not defined"
+      "Variable sha256_${VTK_VERSION}-${python_tag}-${abi_tag}-${platform_tag} is not defined"
   )
 endif()
 
 set(VTK_SDK_EXPECTED_SHA256
-    ${sha256_${VTK_VERSION}-${python_tag}-${abi_tag}-${plaform_tag}})
+    ${sha256_${VTK_VERSION}-${python_tag}-${abi_tag}-${platform_tag}})
 message(STATUS "Setting VTK_SDK_EXPECTED_SHA256: ${VTK_SDK_EXPECTED_SHA256}")
