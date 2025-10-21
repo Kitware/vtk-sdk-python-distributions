@@ -9,17 +9,24 @@ from typing import Literal, overload
 import pytest
 import virtualenv as _virtualenv  # type: ignore[import-untyped]
 
+# Root test directory and path to the test package
 DIR = Path(__file__).parent.resolve()
 BASE = DIR / "packages" / "find_package"
+ROOT = DIR.parent
 
 
 class VEnv:
+    """Manages an isolated virtual environment for testing"""
+
     def __init__(self, env_dir: Path, *, wheelhouse: Path | None = None) -> None:
+        # Create a virtual environment without setuptools and wheel
         cmd = [str(env_dir), "--no-setuptools", "--no-wheel", "--activators", ""]
         result = _virtualenv.cli_run(cmd, setup_logging=False)
         self.wheelhouse = wheelhouse
         self.executable = Path(result.creator.exe)
         self.env_dir = env_dir.resolve()
+
+        # Retrieve install locations (used for debugging or inspection)
         self.platlib = Path(
             self.execute("import sysconfig; print(sysconfig.get_path('platlib'))")
         )
@@ -35,11 +42,15 @@ class VEnv:
 
     def run(self, *args: str, capture: bool = False) -> str | None:
         __tracebackhide__ = True
+
+        # Prepare environment variables for subprocess
         env = os.environ.copy()
         paths = {str(self.executable.parent)}
         env["PATH"] = os.pathsep.join([*paths, env["PATH"]])
         env["VIRTUAL_ENV"] = str(self.env_dir)
         env["PIP_DISABLE_PIP_VERSION_CHECK"] = "ON"
+
+        # Use local wheelhouse if provided
         if self.wheelhouse is not None:
             env["PIP_NO_INDEX"] = "ON"
             env["PIP_FIND_LINKS"] = str(self.wheelhouse)
@@ -50,6 +61,7 @@ class VEnv:
         if str_args[0] in {"python", "python3"}:
             str_args[0] = str(self.executable)
 
+        # Run and optionally capture output
         if capture:
             result = subprocess.run(
                 str_args,
@@ -88,17 +100,20 @@ class VEnv:
 
 @pytest.fixture()
 def virtualenv(tmp_path: Path) -> VEnv:
+    """Provides a fresh virtualenv for each test run"""
     path = tmp_path / "venv"
     return VEnv(path)
 
 
-ROOT = DIR.parent
-
-
 def test_find_package(virtualenv: VEnv, tmp_path: Path):
+    """Ensure that the VTK SDK can be found using find_package inside CMake"""
+
+    # Step 1: Build the test wheel using scikit-build-core and VTK SDK
     virtualenv.run(
         "python", "-m", "pip", "wheel", str(ROOT), "--wheel-dir", str(tmp_path)
     )
+
+    # Step 2: Install the wheel built from the test project (using find_package(VTK))
     virtualenv.run(
         "python", "-m", "pip", "install", "--find-links", str(tmp_path), str(BASE)
     )
