@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.21...4.0)
 
 set(VTK_VERSION "9.2.5")
 
