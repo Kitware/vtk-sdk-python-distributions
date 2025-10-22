@@ -73,7 +73,7 @@ write_to = "src/vtk_sdk/_version.py"
 skip = ["*-win32"]
 test-command = "pytest {project}/tests"
 test-extras = ["test"]
-test-skip = ["*universal2:arm64"]
+test-skip = ["*musllinux*", "*universal2:arm64"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
