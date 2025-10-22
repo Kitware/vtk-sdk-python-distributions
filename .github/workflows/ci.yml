@@ -6,6 +6,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - "*" # This wildcard matches any tag name
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -81,9 +83,9 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  checks-cibw:
+  build_wheels:
     name: >
-      Check Python Wheel on ${{ matrix.runs-on }} (${{matrix.arch }})
+      Build Python Wheel on ${{ matrix.runs-on }} (${{matrix.arch }})
     runs-on: ${{ matrix.runs-on }}
     needs: [pre-commit]
     strategy:
@@ -106,3 +108,24 @@ jobs:
           CIBW_BUILD: "cp310-* cp311-* cp312-* cp313-*"
           CIBW_ARCHS: "${{ matrix.arch }}"
           CIBW_REPAIR_WHEEL_COMMAND: ""
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.runs-on }}-${{ strategy.job-index }}
+          path: wheelhouse/*.whl
+
+  pass: # This job does nothing and is only used for the branch protection
+    if: always()
+    needs:
+      - pre-commit
+      - checks
+      - build_wheels
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@v1.2.2
+        with:
+          jobs: ${{ toJSON(needs) }}
