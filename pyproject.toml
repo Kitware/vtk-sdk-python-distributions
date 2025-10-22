@@ -70,10 +70,10 @@ git_describe_command = [ "git", "describe", "--tags", "--abbrev=0", "--match", "
 write_to = "src/vtk_sdk/_version.py"
 
 [tool.cibuildwheel]
-skip = ["*-win32"]
+skip = ["*musllinux*", "*-win32"]
 test-command = "pytest {project}/tests"
 test-extras = ["test"]
-test-skip = ["*musllinux*", "*universal2:arm64"]
+test-skip = ["*universal2:arm64"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
