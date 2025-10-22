@@ -15,7 +15,7 @@ message(STATUS "  python_tag: ${python_tag}")
 message(STATUS "  abi_tag: ${abi_tag}")
 
 # Platform tag
-if(LINUX)
+if(UNIX AND NOT APPLE)
   if(Python_SOABI MATCHES "x86_64")
     set(platform_tag "manylinux2014_x86_64.manylinux_2_17_x86_64")
   elseif(Python_SOABI MATCHES "aarch64")
@@ -122,3 +122,33 @@ endif()
 set(VTK_SDK_EXPECTED_SHA256
     ${sha256_${VTK_VERSION}-${python_tag}-${abi_tag}-${platform_tag}})
 message(STATUS "Setting VTK_SDK_EXPECTED_SHA256: ${VTK_SDK_EXPECTED_SHA256}")
+
+# ----------------------------------------------------------------------------
+# On Linux (manylinux), compute the pre-repair platform tag and write the
+# expected final platform tag (derived from the VTK SDK archive) to a file that
+# the wheel repair step will read.
+if(UNIX AND NOT APPLE)
+  # Determine the platform tag as produced by the current build environment
+  execute_process(
+    COMMAND
+      "${Python3_EXECUTABLE}" -c
+      "import sysconfig; print(sysconfig.get_platform().replace('-', '_'))"
+    OUTPUT_VARIABLE pre_repair_platform_tag
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+  message(STATUS "Pre-repair platform tag: ${pre_repair_platform_tag}")
+
+  # Map current wheel tag to the one from the VTK SDK archive name
+  set(wheel_output_dir "$ENV{VTK_SDK_WHEEL_OUTPUT_DIR}")
+  if(NOT "${wheel_output_dir}" STREQUAL "")
+    message(STATUS "VTK_SDK_WHEEL_OUTPUT_DIR: ${wheel_output_dir}")
+    file(MAKE_DIRECTORY "${wheel_output_dir}")
+    set(wheel_tag_file
+        "vtk_sdk-${_norm_tag}-${python_tag}-${abi_tag}-${pre_repair_platform_tag}.whl-tag"
+    )
+    file(WRITE "${wheel_output_dir}/${wheel_tag_file}" "${platform_tag}")
+    message(
+      STATUS
+        "Wrote expected platform tag '${platform_tag}' to: ${wheel_tag_file}")
+  endif()
+endif()
