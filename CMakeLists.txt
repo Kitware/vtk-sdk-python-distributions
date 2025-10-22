@@ -3,15 +3,32 @@ cmake_minimum_required(VERSION 3.21...4.0)
 # Version diagnostics:
 #
 # * setuptools_scm (overridden) provides a clean nearest tag as project version
-#   via: git describe --tags --abbrev=0 --match "*[0-9]*"
-# * Compare VTK_VERSION to that clean tag (normalized) and warn on mismatch.
+#   via: git describe --tags --abbrev=0 --match "v[0-9]*"
+# * Normalize the tag and compare to VTK_VERSION.
+#
+#   * strip leading 'v'
+#   * keep only MAJOR.MINOR.PATCH (ignore .<sdk-subrev> and prerelease like rc1)
 set(VTK_VERSION "9.5.0") # major.minor.patch
-message(STATUS "SKBUILD_PROJECT_VERSION: ${SKBUILD_PROJECT_VERSION}")
-message(STATUS "            VTK_VERSION: ${VTK_VERSION}")
-if(NOT VTK_VERSION VERSION_EQUAL SKBUILD_PROJECT_VERSION)
+
+set(_raw_tag "${SKBUILD_PROJECT_VERSION}")
+# Examples:
+#
+# * v9.5.0       -> 9.5.0
+# * v9.5.0.1     -> 9.5.0
+# * v9.5.0rc1    -> 9.5.0
+# * V9.5.0-rc2   -> 9.5.0
+# * v9.5.0+meta  -> 9.5.0
+string(REGEX REPLACE "^[v]" "" _norm_tag "${_raw_tag}")
+string(REGEX REPLACE "^[v]?([0-9]+(\\.[0-9]+){2}).*" "\\1" _norm_tag
+                     "${_raw_tag}")
+
+message(STATUS "SKBUILD_PROJECT_VERSION (raw): ${SKBUILD_PROJECT_VERSION}")
+message(STATUS "SKBUILD_PROJECT_VERSION (norm): ${_norm_tag}")
+message(STATUS "                   VTK_VERSION: ${VTK_VERSION}")
+if(NOT VTK_VERSION VERSION_EQUAL _normalized_git_tag_version)
   message(
     WARNING
-      "Hardcoded VTK version \"${VTK_VERSION}\" disagrees from git tag version \"${SKBUILD_PROJECT_VERSION}\"."
+      "Hardcoded VTK version \"${VTK_VERSION}\" disagrees with tag-derived version \"${_raw_tag}\" (normalized: \"${_norm_tag}\"). "
       "This check is performed to ensure that the version is the intended one, especially when a specific tag is checked out."
       "Please ensure that git tags are up to date and that VTK_VERSION has the expected value."
   )

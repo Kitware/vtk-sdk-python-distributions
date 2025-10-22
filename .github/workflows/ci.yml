@@ -7,7 +7,7 @@ on:
     branches:
       - main
     tags:
-      - "*" # This wildcard matches any tag name
+      - "v*" # Only run on tags that start with 'v' (e.g., v9.5.0)
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
