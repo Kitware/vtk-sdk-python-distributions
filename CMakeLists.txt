@@ -25,7 +25,7 @@ string(REGEX REPLACE "^[v]?([0-9]+(\\.[0-9]+){2}).*" "\\1" _norm_tag
 message(STATUS "SKBUILD_PROJECT_VERSION (raw): ${SKBUILD_PROJECT_VERSION}")
 message(STATUS "SKBUILD_PROJECT_VERSION (norm): ${_norm_tag}")
 message(STATUS "                   VTK_VERSION: ${VTK_VERSION}")
-if(NOT VTK_VERSION VERSION_EQUAL _normalized_git_tag_version)
+if(NOT VTK_VERSION VERSION_EQUAL ${_norm_tag})
   message(
     WARNING
       "Hardcoded VTK version \"${VTK_VERSION}\" disagrees with tag-derived version \"${_raw_tag}\" (normalized: \"${_norm_tag}\"). "
