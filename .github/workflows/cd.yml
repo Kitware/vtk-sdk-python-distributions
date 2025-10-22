@@ -2,9 +2,15 @@ name: wheels
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Git tag to publish wheels for"
+        required: true
   release:
     types:
       - published
+
+permissions: {} # No permissions are granted at the workflow level
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -14,110 +20,46 @@ env:
   FORCE_COLOR: 3
 
 jobs:
-  make_sdist:
-    name: Make SDist
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
-      - name: Build SDist
-        run: pipx run build --sdist
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: cibw-sdist
-          path: dist/*.tar.gz
-
-  test_sdist:
-    name: Test SDist with python ${{ matrix.python }}
-    needs: [make_sdist]
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python: ["3.10", "3.11", "3.12", "3.13"]
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        name: Install Python ${{ matrix.python }}
-        with:
-          python-version: ${{ matrix.python }}
-
-      - name: Install dependencies
-        run: |
-          pip install pytest pytest-cov
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: cibw-sdist
-          path: dist
-
-      - name: Install SDist
-        run: |
-          pip -V
-          pip install dist/*.tar.gz
-          rm -rf dist
-
-      - name: Test installed SDist
-        run: pytest ./tests
-
-  check_dist:
-    name: Check dist
-    needs: [build_wheels, make_sdist, test_sdist]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          path: all
-
-      - run: pipx run twine check --strict all/*/*
-
-  build_wheels:
-    name: Wheel on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-15-intel]
-        arch: ["auto"]
-
-        include:
-          - os: macos-14
-            arch: "arm64"
-
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
-      - uses: pypa/cibuildwheel@v3.2
-        env:
-          CIBW_BUILD: "cp310-* cp311-* cp312-* cp313-*"
-          CIBW_ARCHS: "${{ matrix.arch }}"
-          CIBW_REPAIR_WHEEL_COMMAND: ""
-
-      - name: Upload wheels
-        uses: actions/upload-artifact@v4
-        with:
-          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
-          path: wheelhouse/*.whl
-
   upload_all:
-    needs: [check_dist]
     environment: pypi
     permissions:
       id-token: write
     runs-on: ubuntu-latest
-    if: github.event_name == 'release' && github.event.action == 'published'
 
     steps:
-      - uses: actions/download-artifact@v5
+      - name: Set TAG_NAME
+        id: vars
+        run: |
+          echo "TAG_NAME=${{ github.event.release.tag_name || inputs.tag }}" >> $GITHUB_OUTPUT
+
+      - name: Checkout repo
+        uses: actions/checkout@v5.0.0
         with:
-          pattern: cibw-*
+          fetch-depth: 0 # Required to resolve tag commits
+
+      - name: Resolve commit SHA for tag
+        id: resolve_sha
+        run: |
+          COMMIT_SHA=$(git rev-list -n 1 $TAG_NAME)
+          echo "COMMIT_SHA [$COMMIT_SHA]"
+          echo "commit-sha=$COMMIT_SHA" >> $GITHUB_OUTPUT
+        env:
+          TAG_NAME: ${{ steps.vars.outputs.TAG_NAME }}
+
+      - name: Download artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v11
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: ci.yml
+          workflow_conclusion: success
+          commit: ${{ steps.resolve_sha.outputs.commit-sha }}
+          repo: ${{ github.repository }}
+          name: "cibw-wheels-.+"
+          name_is_regexp: true
           path: dist
-          merge-multiple: true
+
+      - name: List downloaded wheels
+        run: ls -1 -R dist/
 
       - uses: pypa/gh-action-pypi-publish@release/v1
