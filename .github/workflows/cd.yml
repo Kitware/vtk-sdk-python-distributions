@@ -59,7 +59,12 @@ jobs:
           name_is_regexp: true
           path: dist
 
+      - name: Move all downloaded wheels to top-level dist
+        run: |
+          # Move any wheels from nested cibw dirs into dist/
+          find dist -mindepth 2 -type f -name '*.whl' -exec mv -n {} dist/ \;
+
       - name: List downloaded wheels
-        run: ls -1 -R dist/
+        run: ls -1 dist/
 
       - uses: pypa/gh-action-pypi-publish@release/v1
