@@ -59,10 +59,17 @@ jobs:
           name_is_regexp: true
           path: dist
 
-      - name: Move all downloaded wheels to top-level dist
+      - name: Consolidate artifacts and clean extras
+        shell: bash
         run: |
-          # Move any wheels from nested cibw dirs into dist/
+          # Move wheels from nested cibw dirs into top-level dist/
           find dist -mindepth 2 -type f -name '*.whl' -exec mv -n {} dist/ \;
+
+          # Remove any .zip files under dist/ (we don't publish zips to PyPI)
+          find dist -type f -iname '*.zip' -print -delete
+
+          # Remove intermediate cibw directories
+          find dist -mindepth 1 -maxdepth 1 -type d -name 'cibw-wheels-*' -exec rm -rf {} +
 
       - name: List downloaded wheels
         run: ls -1 dist/
