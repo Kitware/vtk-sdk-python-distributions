@@ -33,7 +33,7 @@ jobs:
           echo "TAG_NAME=${{ github.event.release.tag_name || inputs.tag }}" >> $GITHUB_OUTPUT
 
       - name: Checkout repo
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # Required to resolve tag commits
 
