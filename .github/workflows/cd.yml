@@ -33,7 +33,7 @@ jobs:
           echo "TAG_NAME=${{ github.event.release.tag_name || inputs.tag }}" >> $GITHUB_OUTPUT
 
       - name: Checkout repo
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # Required to resolve tag commits
 
@@ -48,7 +48,7 @@ jobs:
 
       - name: Download artifact
         id: download-artifact
-        uses: dawidd6/action-download-artifact@v11
+        uses: dawidd6/action-download-artifact@v12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: ci.yml
